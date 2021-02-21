@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Log In
+{% endblock %}
+
+{% block main %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Name</th>
+                <th>Shares</th>
+                <th>Price</th>
+                <th>TOTAL</th>
+            </tr>
+        </thead>
+
+    
+    <tbody>
+        {% for stock_symbol,stock_name, shares, stock_prices_non_usd, total_shares_value in user_stock_info%}
+        <tr>
+            <td>{{stock_symbol}}</td>
+            <td>{{stock_name}}</td>
+            <td>{{shares}}</td>
+            <td>{{stock_prices_non_usd | usd}}</td>
+            <td>{{total_shares_value | usd}}</td>
+        </tr>
+        {% endfor %}
+         
+          <tr>
+            <td>CASH</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>{{user_cash | usd}}</td>
+        </tr>
+        
+        <tfoot>
+            <tr>
+                <td><b>Portfolio Total</b></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td><b>{{portfolio_total | usd}}</b></td>
+            </tr>
+        </tfoot>
+    </tbody>
+</table>
+       
+<head>
+<body>
+   	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load("current", {packages:["corechart"]});
+      google.charts.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var pie_list = google.visualization.arrayToDataTable([
+			{% for key, value in pie_list.items() %}
+				{% if value is string %}
+					['{{ key }}', '{{ value }}'],
+				{% else %}
+					['{{ key }}', {{ value }}],
+				{% endif %}
+			{% endfor %}
+        ]);
+
+        var options = {
+          title: 'Portfolio Distribution',
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+        chart.draw(pie_list, options);
+      }
+    </script>
+</head>
+<body>
+	<div style="margin: 10px 0 0 10px;width: 1000px;margin-left: 200px">
+		<div id="piechart" style="width: 900px; height: 500px;"></div>
+	</div>
+</body>
+       
+  
+{% endblock %}
