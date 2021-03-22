@@ -48,7 +48,7 @@ db = SQL(os.getenv("DATABASE_URL"))
 
 # Create transaction table. 
                 
-db.execute("""CREATE TABLE IF NOT EXISTS "transaction" ("id" SERIAL primary key, "username" TEXT NOT NULL, "stock_name" TEXT NOT NULL, "stock_symbol" TEXT NOT NULL, "stock_price" NUMERIC NOT NULL, "shares" INTEGER NOT NULL, "share_holding_value" NUMERIC NOT NULL DEFAULT 10000.00 , "type_of_transaction" TEXT NOT NULL, "time_of_transaction" DATETIME NOT NULL)""")
+db.execute("""CREATE TABLE IF NOT EXISTS 'transaction' ('username' TEXT NOT NULL, 'stock_name' TEXT NOT NULL, 'stock_symbol' TEXT NOT NULL, 'stock_price' NUMERIC NOT NULL, 'shares' INTEGER NOT NULL, 'share_holding_value' NUMERIC NOT NULL DEFAULT 10000.00 , 'type_of_transaction' TEXT NOT NULL, 'time_of_transaction' DATETIME NOT NULL)""")
                  
 
 # Make sure API key is set
