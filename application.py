@@ -9,7 +9,6 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 from flask_googlecharts import GoogleCharts
 from flask_googlecharts import PieChart
-import psycopg2
 
 from helpers import apology, login_required, lookup, usd
 
@@ -49,7 +48,7 @@ db = SQL(os.getenv("DATABASE_URL"))
 
 # Create transaction table. 
                 
-db.execute("""CREATE TABLE IF NOT EXISTS 'transaction' ('username' TEXT NOT NULL, 'stock_name' TEXT NOT NULL, 'stock_symbol' TEXT NOT NULL, 'stock_price' NUMERIC NOT NULL, 'shares' INTEGER NOT NULL, 'share_holding_value' NUMERIC NOT NULL DEFAULT 10000.00 , 'type_of_transaction' TEXT NOT NULL, 'time_of_transaction' DATETIME NOT NULL)""")
+db.execute("""CREATE TABLE IF NOT EXISTS transaction (username TEXT NOT NULL, stock_name TEXT NOT NULL, stock_symbol TEXT NOT NULL, stock_price NUMERIC NOT NULL, shares INTEGER NOT NULL, share_holding_value NUMERIC NOT NULL DEFAULT 10000.00 , type_of_transaction TEXT NOT NULL, time_of_transaction DATETIME NOT NULL)""")
                  
 
 # Make sure API key is set
@@ -72,15 +71,15 @@ def index():
     username = username.get('username')
     
      # The stocks the user owns
-    users_stocks_symbol_dict = db.execute("SELECT stock_symbol FROM 'transaction' WHERE username = :username GROUP BY stock_symbol HAVING SUM (shares) > 0", username=username)
+    users_stocks_symbol_dict = db.execute("SELECT stock_symbol FROM transaction WHERE username = :username GROUP BY stock_symbol HAVING SUM (shares) > 0", username=username)
     users_stocks_symbol = [li['stock_symbol'] for li in users_stocks_symbol_dict]
     
     # The name of shares the user owns 
-    users_stocks_name_dict = db.execute("SELECT stock_name FROM 'transaction' WHERE username = :username GROUP BY stock_symbol HAVING SUM (shares) > 0", username=username)
+    users_stocks_name_dict = db.execute("SELECT stock_name FROM transaction WHERE username = :username GROUP BY stock_symbol HAVING SUM (shares) > 0", username=username)
     users_stocks_name = [li['stock_name'] for li in users_stocks_name_dict]
     
     # Number of shares the user owns 
-    users_stocks_shares_dict = db.execute("SELECT SUM (shares) FROM 'transaction' WHERE username = :username GROUP BY stock_symbol HAVING SUM (shares) > 0", username=username)
+    users_stocks_shares_dict = db.execute("SELECT SUM (shares) FROM transaction WHERE username = :username GROUP BY stock_symbol HAVING SUM (shares) > 0", username=username)
     users_stocks_shares = [li['SUM (shares)'] for li in users_stocks_shares_dict]
     
     # Look up the most recent price of the stocks owned.
@@ -103,7 +102,7 @@ def index():
     
     
     # Total cash the user has
-    user_cash_dict = (db.execute("SELECT cash from 'users' WHERE username = :username", username=username)[0])
+    user_cash_dict = (db.execute("SELECT cash from users WHERE username = :username", username=username)[0])
     user_cash = user_cash_dict.get('cash')
     
     # Portfolio Total 
@@ -112,7 +111,7 @@ def index():
     
     
     # Variables for PieChart
-    pie_chart_data = (db.execute("SELECT stock_symbol FROM 'transaction' WHERE username = :username GROUP BY stock_symbol HAVING SUM (shares) > 0", username=username))
+    pie_chart_data = (db.execute("SELECT stock_symbol FROM transaction WHERE username = :username GROUP BY stock_symbol HAVING SUM (shares) > 0", username=username))
     print ("pie_chart_data:",pie_chart_data)
     
     pie_list = {'Stock' : 'Share Holding'}
@@ -216,10 +215,10 @@ def buy():
                     type_of_transaction = "Bought"
                 
                     # Insert username, stock_name, stock_symbol, stock_price, shares, total purchase and time bought
-                    db.execute("INSERT INTO 'transaction' (username, stock_name, stock_symbol, stock_price, shares, share_holding_value, type_of_transaction, time_of_transaction) VALUES (:username, :stock_name, :symbol_symbol, :symbol_price, :shares, :share_holding_value, :type_of_transaction, :time_of_transaction)", username=username, stock_name=stock_name, symbol_symbol=symbol_symbol, symbol_price=symbol_price, shares=shares_number_int, share_holding_value=share_holding_value, type_of_transaction=type_of_transaction, time_of_transaction=time_of_transaction)
+                    db.execute("INSERT INTO transaction (username, stock_name, stock_symbol, stock_price, shares, share_holding_value, type_of_transaction, time_of_transaction) VALUES (:username, :stock_name, :symbol_symbol, :symbol_price, :shares, :share_holding_value, :type_of_transaction, :time_of_transaction)", username=username, stock_name=stock_name, symbol_symbol=symbol_symbol, symbol_price=symbol_price, shares=shares_number_int, share_holding_value=share_holding_value, type_of_transaction=type_of_transaction, time_of_transaction=time_of_transaction)
                     
                     # When stock is purchased, deduct this from the users cash total 
-                    user_cash_dict = (db.execute("SELECT cash from 'users' WHERE username = :username", username=username)[0])
+                    user_cash_dict = (db.execute("SELECT cash from users WHERE username = :username", username=username)[0])
                     user_cash = user_cash_dict.get('cash')
                         # Update user cash to deduct purchased stock 
                         
@@ -252,16 +251,16 @@ def history():
         username = (db.execute("SELECT username FROM users WHERE id = :user_id", user_id=user_id)[0])
         username = username.get('username')
         
-        symbol_list_dict= db.execute("SELECT stock_symbol FROM 'transaction' WHERE username = :username", username=username)
+        symbol_list_dict= db.execute("SELECT stock_symbol FROM transaction WHERE username = :username", username=username)
         symbol = [stock_symbol['stock_symbol'] for stock_symbol in symbol_list_dict]
 
-        shares_list_dict = db.execute("SELECT shares FROM 'transaction' WHERE username = :username", username=username)
+        shares_list_dict = db.execute("SELECT shares FROM transaction WHERE username = :username", username=username)
         shares = [shares['shares'] for shares in shares_list_dict]
         
-        price_list_dict = db.execute("SELECT stock_price FROM 'transaction' WHERE username = :username", username=username)
+        price_list_dict = db.execute("SELECT stock_price FROM transaction WHERE username = :username", username=username)
         price = [stock_price['stock_price'] for stock_price in price_list_dict]
         
-        transacted_list_dict = db.execute("SELECT time_of_transaction FROM 'transaction' WHERE username = :username", username=username)
+        transacted_list_dict = db.execute("SELECT time_of_transaction FROM transaction WHERE username = :username", username=username)
         transacted = [time_of_transaction['time_of_transaction'] for time_of_transaction in transacted_list_dict]
         
         # Zip variable of lists that I want to iterate over. 
@@ -499,7 +498,7 @@ def sell():
         db.execute("INSERT INTO 'transaction' (username, stock_name, stock_symbol, stock_price, shares, share_holding_value, type_of_transaction, time_of_transaction) VALUES (:username, :stock_name, :symbol_symbol, :symbol_price, :shares, :share_holding_value, :type_of_transaction, :time_of_transaction)", username=username, stock_name=stock_name, symbol_symbol=symbol_symbol, symbol_price=symbol_price, shares=shares_number_int, share_holding_value=share_holding_value, type_of_transaction=type_of_transaction, time_of_transaction=time_of_transaction)
         
         # When stock is sold, add this from the users cash total 
-        user_cash_dict = (db.execute("SELECT cash from 'users' WHERE username = :username", username=username)[0])
+        user_cash_dict = (db.execute("SELECT cash from users WHERE username = :username", username=username)[0])
         user_cash = user_cash_dict.get('cash')
             # Update user cash to deduct purchased stock 
             
