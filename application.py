@@ -9,7 +9,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 from flask_googlecharts import GoogleCharts
 from flask_googlecharts import PieChart
-import commands
+#import commands
 
 from helpers import apology, login_required, lookup, usd
 
@@ -527,6 +527,12 @@ def errorhandler(e):
     if not isinstance(e, HTTPException):
         e = InternalServerError()
     return apology(e.name, e.code)
+
+
+
+# Create all tables if not made 
+with app.app_context():
+    db.create_all()
 
 
 # Listen for errors
