@@ -530,9 +530,7 @@ def errorhandler(e):
 
 
 
-# Create all tables if not made 
-with app.app_context():
-    db.create_all()
+
 
 
 # Listen for errors
