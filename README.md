@@ -1,9 +1,7 @@
 # finance
 ### An application via which you can manage portfolios of stocks, check stock prices, and buy/sell stocks by querying IEX for prices.
 
-<p align="center">
-  https://user-images.githubusercontent.com/34078081/119012412-ecd76b00-b98d-11eb-8ee4-05bd55e6c262.mov
-</p>
+![](/static/finance.gif)
 
 
 ## Description
