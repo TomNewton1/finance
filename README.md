@@ -1,20 +1,12 @@
 # finance
-### An application via which you can manage portfolios of stocks, check stock prices, and buy/sell stocks by querying IEX for prices.
+### Web app that allows users to create and manage a real-time stocks and shares porfolio. 
+
 
 ![](/static/finance.gif)
 
 
 ## Description
 
-Through the use of IEX's API, we can obtain stock quotes by providing a stock's ticker symbol. After registering for an account, a user can log in and is given a fake $10,000 to spend. This investment can be used to buy/sell stocks and observe their values fluctuate over time since IEX provides us with real time prices.
+This web application is built using the flask framework, Python, HTML and Bootsrap. The application makes use of the IEX API to get real-time stock values. After registering for an account users are then able to get a quote, buy or sell a stock and build a portfolio that changes in value over time. An SQL database is used to store infromation such as such as username, password hash, the stocks they bought or sold and the history of transations. 
 
-* **Index:** 
-
-* **Quote:** 
-
-* **Buy:** 
-
-* **Sell:** 
-
-
-* **History:** 
+Users start with a fake $10,000 to spend.
